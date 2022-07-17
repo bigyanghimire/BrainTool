@@ -6,7 +6,7 @@
  *
  ***/
 
-var Keys;
+var Keys = { CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: '' };
 var BTTab = 0;
 var BTWin = 0;
 // try {

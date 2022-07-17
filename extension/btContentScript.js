@@ -73,7 +73,7 @@ async function launchApp(msg) {
     // and then just pass on to app
     console.log("in launch app")
     if (window.LOCALTEST) return;                          // running inside test harness
-
+    console.log("in launch app")
     let btdata = await getFromLocalStorage('BTFileText');
     if (!btdata) {
         let response = await fetch('/app/BrainTool.org');
