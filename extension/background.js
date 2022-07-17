@@ -7,12 +7,14 @@
  ***/
 
 var Keys;
-try {
-    importScripts('config.js');
-} catch (e) {
-    console.log(e);
-    Keys = { CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: '' };
-}
+var BTTab = 0;
+var BTWin = 0;
+// try {
+//     importScripts('config.js');
+// } catch (e) {
+//     console.log(e);
+//     Keys = { CLIENT_ID: '', API_KEY: '', FB_KEY: '', STRIPE_KEY: '' };
+// }
 
 var LocalTest = false;                            // control code path during unit testing
 var InitialInstall = false;                       // should we serve up the welcome page
@@ -20,8 +22,8 @@ var UpdateInstall = false;                        // or the release notes page
 
 async function getBTTabWin() {
     // read from local storage
-    let p = await chrome.storage.local.get(['BTTab', 'BTWin']);
-    return [p.BTTab, p.BTWin];
+    //   let p = await chrome.storage.local.get(['BTTab', 'BTWin']);
+    return [0, 0];
 }
 
 function check(msg = '') {
@@ -90,6 +92,7 @@ const Handlers = {
 };
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+    console.log("asd")
     if (msg.from != 'btwindow' && msg.from != 'popup') return;
 
     // NB workaround for bug in Chrome, see https://stackoverflow.com/questions/71520198/manifestv3-new-promise-error-the-message-port-closed-before-a-response-was-rece/71520415#71520415
@@ -252,13 +255,15 @@ function getOpenTabs() {
 }
 
 async function initializeExtension(msg, sender) {
+    console.log("initialize")
+
     // sender is the BTContent script. We pull out its identifiers
     const BTTab = sender.tab.id;
     const BTWin = sender.tab.windowId;
     chrome.storage.local.set({ 'BTTab': BTTab, 'BTWin': BTWin });
 
     let allTabs = await getOpenTabs();
-
+    console.log("initialize")
     // send over gdrive app info
     chrome.tabs.sendMessage(
         BTTab,
@@ -370,14 +375,12 @@ function openTabGroups(msg, sender) {
         tabInfo.forEach(info => {
             chrome.tabs.create({ 'url': info.url, 'windowId': winId }, tab => {
                 check();
-                if (typeof <chrome.tabs.group> === "function") {
-                    // safe to use the function
-                    chrome.tabs.group({ 'tabIds': tab.id, 'groupId': tgid }, tgid => {
-                        chrome.windows.update(tab.windowId, { 'focused': true });
-                        chrome.tabs.highlight({ 'windowId': tab.windowId, 'tabs': tab.index });
-                        tabOpened(winId, tab.id, info.nodeId, tab.index, tgid);
-                    });
-                }
+                // safe to use the function
+                chrome.tabs.group({ 'tabIds': tab.id, 'groupId': tgid }, tgid => {
+                    chrome.windows.update(tab.windowId, { 'focused': true });
+                    chrome.tabs.highlight({ 'windowId': tab.windowId, 'tabs': tab.index });
+                    tabOpened(winId, tab.id, info.nodeId, tab.index, tgid);
+                });
 
 
             });
